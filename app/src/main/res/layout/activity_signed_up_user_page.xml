@@ -9,6 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/background_color"
         android:orientation="vertical">
 
         <Button
@@ -27,6 +28,7 @@
             android:layout_gravity="center"
             android:textStyle="bold"
             android:textSize="40sp"
+            android:textColor="@color/text_color"
             android:text="Bonjour !"
             android:layout_marginTop="30dp" />
 
@@ -47,7 +49,40 @@
             android:layout_marginTop="20dp"
             android:layout_marginLeft="40dp"
             android:layout_marginRight="40dp"
+            android:textColor="@color/text_color"
+            android:textColorHint="@color/text_color"
             android:hint="Rechercher un dessin" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <ImageView
+                    android:layout_gravity="center"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:src="@drawable/ex1"/>
+                <ImageView
+                    android:layout_gravity="center"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:src="@drawable/ex2"/>
+                <ImageView
+                    android:layout_gravity="center"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:src="@drawable/ex3"/>
+                <ImageView
+                    android:layout_gravity="center"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:src="@drawable/ex4"/>
+            </LinearLayout>
+        </ScrollView>
 
     </LinearLayout>
 
