@@ -3,6 +3,7 @@ package com.example.projet_mobile;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -26,6 +27,19 @@ public class EditDessin extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(EditDessin.this, AjoutCollaborateurs.class);
+                startActivity(i);
+            }
+        });
+
+        ((Button)findViewById(R.id.sauvegarder_button)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /* La sauvegarde du dessin en png ne fonctionne pas encore
+                DrawingView dv = findViewById(R.id.drawingView);
+                Bitmap bitmap = dv.getBitmapFromView();
+                dv.saveBitmapToPng(dv.getContext(),bitmap,"my_draw");
+                */
+                Intent i = new Intent(EditDessin.this, SaveDrawing.class);
                 startActivity(i);
             }
         });

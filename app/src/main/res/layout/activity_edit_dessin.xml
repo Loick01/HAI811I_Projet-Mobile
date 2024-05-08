@@ -23,7 +23,7 @@
                 android:id="@+id/retour_arriere"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
+                android:textSize="19sp"
                 android:layout_marginTop="10dp"
                 android:layout_marginLeft="10dp"
                 android:text="Retour"/>
@@ -32,22 +32,27 @@
                 android:id="@+id/ajout_collaborateurs"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
+                android:textSize="19sp"
                 android:layout_marginTop="10dp"
                 android:layout_marginLeft="10dp"
                 android:text="Collaborateurs"/>
 
         </LinearLayout>
 
-        <TextView
+        <!-- Plus tard on remplacera les boutons par des images, donc on remettra ce bouton dans le LinearLayout ci-dessus -->
+        <Button
+            android:id="@+id/sauvegarder_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textSize="25sp"
-            android:textColor="@color/text_color"
-            android:text="Page de dessin (à faire)"
-            android:layout_marginTop="100dp"
-            tools:ignore="MissingConstraints" />
+            android:textSize="19sp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:text="Save"/>
+
+        <com.example.projet_mobile.DrawingView
+            android:id="@+id/drawingView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 
