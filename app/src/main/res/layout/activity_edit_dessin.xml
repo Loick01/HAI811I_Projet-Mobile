@@ -12,47 +12,91 @@
         android:orientation="vertical"
         android:background="@color/background_color">
 
-        <!-- Dans ce layout, on mettra les 3 boutons (voir sur la maquette) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+			android:layout_marginTop="10dp"
+			android:layout_marginBottom="10dp"
             tools:ignore="MissingConstraints">
-
-            <Button
-                android:id="@+id/retour_arriere"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="19sp"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="10dp"
-                android:text="Retour"/>
-
-            <Button
-                android:id="@+id/ajout_collaborateurs"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="19sp"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="10dp"
-                android:text="Collaborateurs"/>
+            
+            <ImageView
+            android:id="@+id/retour_arriere"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+			android:layout_weight="1"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/back_arrow" />
+            
+            <ImageView
+            android:id="@+id/ajout_collaborateurs"
+				android:layout_width="0dp"
+				android:layout_height="48dp"
+				android:layout_weight="1"
+				android:layout_marginLeft="10dp"
+            android:src="@drawable/user" />
+            
+            <ImageView
+            android:id="@+id/sauvegarder_button"
+				android:layout_width="0dp"
+				android:layout_height="48dp"
+				android:layout_weight="1"
+				android:layout_marginLeft="10dp"
+            android:src="@drawable/save" />
+            
+            <ImageView
+            android:id="@+id/partager_bouton"
+				android:layout_width="0dp"
+				android:layout_height="48dp"
+				android:layout_weight="1"
+				android:layout_marginLeft="10dp"
+            android:src="@drawable/share" />
 
         </LinearLayout>
 
-        <!-- Plus tard on remplacera les boutons par des images, donc on remettra ce bouton dans le LinearLayout ci-dessus -->
-        <Button
-            android:id="@+id/sauvegarder_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="19sp"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="10dp"
-            android:text="Save"/>
+		<com.example.projet_mobile.DrawingView
+			android:id="@+id/drawingView"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_weight="1" />
 
-        <com.example.projet_mobile.DrawingView
-            android:id="@+id/drawingView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+		<HorizontalScrollView
+		    android:id="@+id/horizontalScrollView"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content">
+
+		    <LinearLayout
+		        android:id="@+id/buttonContainer"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+				android:layout_marginTop="10dp"
+				android:layout_marginBottom="10dp"
+		        android:orientation="horizontal">
+
+				<!-- Pour l'instant seul le bouton pour changer l'épaisseur des lignes est fonctionnel -->
+		        <Button
+					android:id="@+id/buttonLineWidth"
+		            android:text="Epaisseur de l'outil"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"/>
+
+		        <Button
+		            android:text="Couleur de l'outil"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"/>
+
+				<Button
+					android:text="Type d'outil"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"/>
+
+				<Button
+					android:text="Forme"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"/>
+
+		    </LinearLayout>
+		</HorizontalScrollView>
 
     </LinearLayout>
 

@@ -24,6 +24,9 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
     private Paint paint;
     private Path path;
     private ArrayList<Path> paths;
+    private ArrayList<Integer> sizePath; // Apparemment si on veut des lignes de taille différente on a pas le choix, on est obligé de conserver leurs tailles au moment où elles sont dessinées
+
+    private int lineWidth;
 
     public DrawingView(Context context){
         this(context,null);
@@ -31,14 +34,16 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
     public DrawingView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
 
+        this.lineWidth = 10;
         this.paint = new Paint();
         this.paint.setColor(Color.BLACK); // La couleur par défaut est le noir, on pourra en changer dans la palette de couleur
         this.paint.setStyle(Paint.Style.STROKE); // Style par défaut, ce serait de pouvoir en changer (il y a Paint.Style.FILL et Paint.Style.FILL_AND_STROKE)
-        this.paint.setStrokeWidth(10); // Pareil, il faudrait pouvoir changer la taille
+        this.paint.setStrokeWidth(this.lineWidth);
         this.paint.setAntiAlias(true);
 
         this.path = new Path();
         this.paths = new ArrayList<>();
+        this.sizePath = new ArrayList<>();
     }
 
     @Override
@@ -47,10 +52,12 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
 
         canvas.drawColor(Color.WHITE);
         // On dessine toutes les lignes précédentes
-        for (Path previous_path : this.paths){
-            canvas.drawPath(previous_path, this.paint);
+        for (int i = 0 ; i < this.paths.size() ; i++){
+            this.paint.setStrokeWidth(this.sizePath.get(i));
+            canvas.drawPath(this.paths.get(i), this.paint);
         }
-        // Puis on dessine la nouvelle ligne
+        // Puis on dessine la nouvelle ligne (avec la taille actuelle)
+        this.paint.setStrokeWidth(this.lineWidth);
         canvas.drawPath(this.path,this.paint);
     }
 
@@ -65,6 +72,7 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
                 break;
             case MotionEvent.ACTION_UP: // L'utilisateur a fini de tracer, donc on ajoute la ligne à la liste de Path
                 this.paths.add(new Path(this.path));
+                this.sizePath.add(this.lineWidth); // On conserve la taille de la ligne au moment où elle est dessinée
                 this.path.reset(); // Efface la ligne de l'objet this.path que l'on vient d'ajouter
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -104,5 +112,13 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
                 }
             }
         }
+    }
+
+    public void setLineWidth(int progress){
+        this.lineWidth = progress;
+    }
+
+    public int getLineWidth(){
+        return this.lineWidth;
     }
 }
