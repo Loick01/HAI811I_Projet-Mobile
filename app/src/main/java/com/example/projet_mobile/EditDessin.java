@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
+
+import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class EditDessin extends AppCompatActivity {
 
@@ -65,16 +68,61 @@ public class EditDessin extends AppCompatActivity {
                 showViewPopup(v);
             }
         });
+
+        ((Button)findViewById(R.id.buttonBackgroudColor)).setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                changeBackgroundColor();
+            }
+        });
+
+        ((Button)findViewById(R.id.buttonColorLine)).setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                changeLineColor();
+            }
+        });
+    }
+
+    private void changeBackgroundColor(){
+        AmbilWarnaDialog awd = new AmbilWarnaDialog(this, drawingView.getBackgroundColor(), new AmbilWarnaDialog.OnAmbilWarnaListener() {
+            @Override
+            public void onCancel(AmbilWarnaDialog dialog) {
+                // Rien à faire à priori
+            }
+
+            @Override
+            public void onOk(AmbilWarnaDialog dialog, int color) {
+                drawingView.setBackgroundColor(color);
+                drawingView.invalidate();
+            }
+        });
+        awd.show();
+    }
+
+    private void changeLineColor(){
+        AmbilWarnaDialog awd = new AmbilWarnaDialog(this, drawingView.getBackgroundColor(), new AmbilWarnaDialog.OnAmbilWarnaListener() {
+            @Override
+            public void onCancel(AmbilWarnaDialog dialog) {
+                // Rien à faire à priori
+            }
+
+            @Override
+            public void onOk(AmbilWarnaDialog dialog, int color) {
+                drawingView.setToolColor(color);
+            }
+        });
+        awd.show();
     }
 
     private void showViewPopup(View v) {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.line_width_slider_layout,null);
         PopupWindow pw = new PopupWindow( // Le dernier paramètre fait que la popup se ferme si on clique ailleurs
-                popupView, 600, 600, true
+                popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true
         );
 
-        pw.showAsDropDown(v, 200, -200); // Positionne la popup
+        pw.showAsDropDown(v, 0, -400, Gravity.BOTTOM); // Positionne la popup
 
         SeekBar sb = popupView.findViewById(R.id.slider_width_line);
         sb.setProgress(drawingView.getLineWidth());

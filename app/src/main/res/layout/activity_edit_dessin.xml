@@ -81,9 +81,16 @@
 		            android:layout_height="wrap_content"/>
 
 		        <Button
+					android:id="@+id/buttonColorLine"
 		            android:text="Couleur de l'outil"
 		            android:layout_width="wrap_content"
 		            android:layout_height="wrap_content"/>
+
+				<Button
+					android:id="@+id/buttonBackgroudColor"
+					android:text="Couleur de fond"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"/>
 
 				<Button
 					android:text="Type d'outil"
