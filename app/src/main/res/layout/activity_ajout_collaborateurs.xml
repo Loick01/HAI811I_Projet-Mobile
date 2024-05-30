@@ -43,6 +43,15 @@
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
                 android:background="@color/collaborateur_list_color">
+
+                <!-- Ici on mettra la liste de collaborateur, récupéré depuis Firebase -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textSize="20dp"
+                    android:text="Un collaborateur"/>
+
             </LinearLayout>
         </ScrollView>
 

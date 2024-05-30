@@ -2,6 +2,7 @@ package com.example.projet_mobile;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ public class EditDessin extends AppCompatActivity {
 
     private DrawingView drawingView;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +82,27 @@ public class EditDessin extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 changeLineColor();
+            }
+        });
+
+        ((Button)findViewById(R.id.toolType)).setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                drawingView.setToolType(drawingView.getToolType() + 1);
+            }
+        });
+
+        ((Button)findViewById(R.id.lineStyle)).setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) { // Alterne entre STROKE et FILL_AND_STROKE
+                drawingView.setLineStyle(-drawingView.getLineStyle() + 1);
+            }
+        });
+
+        ((Button)findViewById(R.id.undo)).setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                drawingView.undo();
             }
         });
     }

@@ -93,12 +93,20 @@
 					android:layout_height="wrap_content"/>
 
 				<Button
+					android:id="@+id/toolType"
 					android:text="Type d'outil"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"/>
 
 				<Button
-					android:text="Forme"
+					android:id="@+id/lineStyle"
+					android:text="Type de ligne"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"/>
+
+				<Button
+					android:id="@+id/undo"
+					android:text="Annuler"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"/>
 
