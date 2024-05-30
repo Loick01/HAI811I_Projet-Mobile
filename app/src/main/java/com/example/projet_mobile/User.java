@@ -9,7 +9,7 @@ public class User {
     private int phone;
     private String password;
 
-    private static ArrayList<User> listUser;
+    private static ArrayList<User> listUser = new ArrayList<>();
 
     public User(String lastname, String firstname, String email, int phone, String password) {
         this.lastname = lastname;
@@ -20,9 +20,15 @@ public class User {
         listUser.add(this);
     }
 
-    public User(String lastname, String firstname, String email, String password) {
-        this(lastname, firstname, email, -1, password);
+    public static ArrayList<User> getListUser(){
+        return listUser;
     }
 
+    public String getLastname() {
+        return lastname;
+    }
 
+    public String getFirstname() {
+        return firstname;
+    }
 }

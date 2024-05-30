@@ -33,11 +33,24 @@ public class Inscription extends AppCompatActivity {
                 String firstname = String.valueOf(((EditText)findViewById(R.id.firstnameField)).getText());
                 String phone = String.valueOf(((EditText)findViewById(R.id.phoneField)).getText());
                 String email = String.valueOf(((EditText)findViewById(R.id.emailField)).getText());
-                String passord = String.valueOf(((EditText) findViewById(R.id.passwordField)).getText());
+                String password = String.valueOf(((EditText) findViewById(R.id.passwordField)).getText());
 
-                Toast.makeText(Inscription.this, "Votre prénom : " + firstname , Toast.LENGTH_SHORT).show();
-                Intent i = new Intent(Inscription.this, SignedUpUserPage.class);
-                startActivity(i);
+                if (!(lastname.equals("")) && !(firstname.equals("")) && !(email.equals("")) && !(password.equals(""))){ // Seul le champ du numéro de téléphone est optionnel
+                    try {
+                        int phoneNumber = -1;
+                        if (!(phone.equals(""))){
+                            phoneNumber = Integer.parseInt(phone);
+                        }
+                        User u = new User(lastname, firstname, email, phoneNumber, password); // Inscrit l'utilisateur dans la liste statique de la classe User (voir constructeur)
+                        Toast.makeText(Inscription.this, firstname + lastname + ", votre inscription a bien été prise en compte", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(Inscription.this, SignedUpUserPage.class);
+                        startActivity(i);
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(Inscription.this, "Le numéro de téléphone saisi n'est pas valide, veuillez réessayer", Toast.LENGTH_SHORT).show();
+                    }
+                }else{
+                    Toast.makeText(Inscription.this, "Impossible de vous inscrire, vérifiez les informations saisies", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
