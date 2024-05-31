@@ -63,7 +63,8 @@
 		<HorizontalScrollView
 		    android:id="@+id/horizontalScrollView"
 		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content">
+		    android:layout_height="wrap_content"
+			android:background="@color/collaborateur_list_color">
 
 		    <LinearLayout
 		        android:id="@+id/buttonContainer"
@@ -73,42 +74,71 @@
 				android:layout_marginBottom="10dp"
 		        android:orientation="horizontal">
 
-				<!-- Pour l'instant seul le bouton pour changer l'épaisseur des lignes est fonctionnel -->
-		        <Button
+				<!-- Epaisseur de l'outil -->
+				<ImageView
 					android:id="@+id/buttonLineWidth"
-		            android:text="Epaisseur de l'outil"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"/>
+					android:layout_width="64dp"
+					android:layout_height="64dp"
+					android:layout_marginTop="5dp"
+					android:layout_marginRight="10dp"
+					android:layout_marginLeft="10dp"
+					android:layout_marginBottom="5dp"
+					android:src="@drawable/line_width"/>
 
-		        <Button
+				<!-- Couleur de l'outil -->
+				<ImageView
 					android:id="@+id/buttonColorLine"
-		            android:text="Couleur de l'outil"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"/>
+					android:layout_width="64dp"
+					android:layout_height="64dp"
+					android:layout_marginTop="5dp"
+					android:layout_marginRight="10dp"
+					android:layout_marginLeft="10dp"
+					android:layout_marginBottom="5dp"
+					android:src="@drawable/color_bar"/>
 
-				<Button
+				<!-- Couleur de fond -->
+				<ImageView
 					android:id="@+id/buttonBackgroudColor"
-					android:text="Couleur de fond"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"/>
+					android:layout_width="64dp"
+					android:layout_height="64dp"
+					android:layout_marginTop="5dp"
+					android:layout_marginRight="10dp"
+					android:layout_marginLeft="10dp"
+					android:layout_marginBottom="5dp"
+					android:src="@drawable/bg_color"/>
 
-				<Button
+				<!-- Type outil (ligne courbe, ligne droite, carré, rond) -->
+				<ImageView
 					android:id="@+id/toolType"
-					android:text="Type d'outil"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"/>
+					android:layout_width="64dp"
+					android:layout_height="64dp"
+					android:layout_marginTop="5dp"
+					android:layout_marginRight="10dp"
+					android:layout_marginLeft="10dp"
+					android:layout_marginBottom="5dp"
+					android:src="@drawable/shape"/>
 
-				<Button
+				<!-- Remplissage ou non -->
+				<ImageView
 					android:id="@+id/lineStyle"
-					android:text="Type de ligne"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"/>
+					android:layout_width="64dp"
+					android:layout_height="64dp"
+					android:layout_marginTop="5dp"
+					android:layout_marginRight="10dp"
+					android:layout_marginLeft="10dp"
+					android:layout_marginBottom="5dp"
+					android:src="@drawable/fill"/>
 
-				<Button
+				<!-- Annuler dernière action -->
+				<ImageView
 					android:id="@+id/undo"
-					android:text="Annuler"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"/>
+					android:layout_width="64dp"
+					android:layout_height="64dp"
+					android:layout_marginTop="5dp"
+					android:layout_marginRight="10dp"
+					android:layout_marginLeft="10dp"
+					android:layout_marginBottom="5dp"
+					android:src="@drawable/cancel"/>
 
 		    </LinearLayout>
 		</HorizontalScrollView>

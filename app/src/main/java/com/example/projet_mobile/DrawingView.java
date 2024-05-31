@@ -241,12 +241,8 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
         this.backgroundColor = backgroundColor;
     }
 
-    public int getToolType() {
-        return toolType;
-    }
-
     public void setToolType(int toolType) {
-        this.toolType = (toolType==4 ? 0 : toolType);
+        this.toolType = toolType;
     }
 
     public int getToolColor(){
