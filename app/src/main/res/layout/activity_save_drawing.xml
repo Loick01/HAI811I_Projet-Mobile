@@ -68,7 +68,6 @@
             android:textSize="20sp"
             android:text="Partager sur facebook"/>
 
-
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

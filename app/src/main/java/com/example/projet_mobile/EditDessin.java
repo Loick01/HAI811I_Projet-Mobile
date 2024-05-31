@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
+
+import java.io.ByteArrayOutputStream;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
@@ -48,19 +51,28 @@ public class EditDessin extends AppCompatActivity {
         ((ImageView)findViewById(R.id.partager_bouton)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            	Intent i = new Intent(EditDessin.this, SaveDrawing.class);
-                startActivity(i);
+                Bitmap bitmap = drawingView.getBitmapFromView();
+                if (bitmap != null) {
+                    System.out.println("Caca qui pue");
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] byteArray = stream.toByteArray();
+                    Log.d("EditDessin", "Bitmap byte array size: " + byteArray.length);
+
+                    Intent i = new Intent(EditDessin.this, SaveDrawing.class);
+                    i.putExtra("drawing_bitmap", byteArray);
+                    startActivity(i);
+                } else {
+                    Log.e("EditDessin", "Bitmap is null");
+                }
             }
         });
-        
+
         ((ImageView)findViewById(R.id.sauvegarder_button)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            	/* La sauvegarde du dessin en png ne fonctionne pas encore
-                DrawingView dv = findViewById(R.id.drawingView);
-                Bitmap bitmap = dv.getBitmapFromView();
-                dv.saveBitmapToPng(dv.getContext(),bitmap,"my_draw");
-                */
+                Intent i = new Intent(EditDessin.this, SaveDrawing.class);
+                startActivity(i);
             }
         });
 

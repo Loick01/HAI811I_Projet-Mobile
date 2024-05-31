@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Environment;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -40,6 +41,7 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
 
     private int toolType; // 0 pour ligne courbe, 1 pour ligne droite, il faudra en rajouter d'autre
     private int lineStyle; // 0 pour STROKE (juste le contour), 1 pour FILL_AND_STROKE (contour et remplissage)
+    private static final int PERMISSION_REQUEST_CODE = 100;
     public DrawingView(Context context){
         this(context,null);
     }
@@ -203,23 +205,36 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
         return bitmap;
     }
 
-    public void saveBitmapToPng(Context context, Bitmap bitmap, String fileName){
+    public static void saveBitmapToPng(Context context, Bitmap bitmap, String fileName) {
         FileOutputStream outputStream = null;
-        try{
-            File saveDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES); // L'image sera enregistrée dans le répertoire des images du téléphone
-            File file = new File(saveDirectory, fileName+".png"); // Le dessin est sauvegardé au format png
+        try {
+            File saveDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            if (saveDirectory != null && !saveDirectory.exists()) {
+                saveDirectory.mkdirs();
+            }
+            File file = new File(saveDirectory, fileName + ".png");
+            Log.d("SaveBitmap", "Saving file to: " + file.getAbsolutePath());
+
             outputStream = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream); // Compression au format PNG (le deuxième paramèter c'est la qualité, voir si l'utilisateur ne pourrait pas la faire varier)
+            boolean success = bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
             outputStream.flush();
+            if (success) {
+                Log.d("SaveBitmap", "Bitmap successfully saved.");
+            } else {
+                Log.e("SaveBitmap", "Bitmap compression failed.");
+            }
         } catch (FileNotFoundException e) {
+            Log.e("SaveBitmap", "FileNotFoundException: " + e.getMessage());
             e.printStackTrace();
         } catch (IOException e) {
+            Log.e("SaveBitmap", "IOException: " + e.getMessage());
             e.printStackTrace();
         } finally {
             if (outputStream != null) {
                 try {
                     outputStream.close();
                 } catch (IOException e) {
+                    Log.e("SaveBitmap", "IOException while closing outputStream: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
