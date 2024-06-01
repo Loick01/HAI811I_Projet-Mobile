@@ -43,14 +43,6 @@
 				android:layout_weight="1"
 				android:layout_marginLeft="10dp"
             android:src="@drawable/save" />
-            
-            <ImageView
-            android:id="@+id/partager_bouton"
-				android:layout_width="0dp"
-				android:layout_height="48dp"
-				android:layout_weight="1"
-				android:layout_marginLeft="10dp"
-            android:src="@drawable/share" />
 
         </LinearLayout>
 

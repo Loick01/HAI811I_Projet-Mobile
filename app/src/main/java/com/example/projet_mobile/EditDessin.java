@@ -47,8 +47,8 @@ public class EditDessin extends AppCompatActivity {
                 startActivity(i);
             }
         });
-        
-        ((ImageView)findViewById(R.id.partager_bouton)).setOnClickListener(new View.OnClickListener() {
+
+        ((ImageView)findViewById(R.id.sauvegarder_button)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Bitmap bitmap = drawingView.getBitmapFromView();
@@ -65,14 +65,6 @@ public class EditDessin extends AppCompatActivity {
                 } else {
                     Log.e("EditDessin", "Bitmap is null");
                 }
-            }
-        });
-
-        ((ImageView)findViewById(R.id.sauvegarder_button)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(EditDessin.this, SaveDrawing.class);
-                startActivity(i);
             }
         });
 
