@@ -16,6 +16,13 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -31,6 +38,18 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
     private ArrayList<Integer> colorPath; // Pareil pour avoir des lignes de couleur différente
 
     private ArrayList<Integer> stylePath; // Pareil pour avoir des styles différents
+
+    private ArrayList<String> listeCollaborateurs; // Liste des collaborateurs (designés par leur adresse mail) sur le dessin.Le premier élément est l'utilisateur qui a créé le dessin
+    // On fera en sorte que n'importe quel collaborateur pourra ajouter un nouveau collaborateur, donc tout partira de l'utilisateur ayant créé le dessin
+
+    private FirebaseDatabase firebaseRealtimeDatabase;
+    private DatabaseReference drawingsReference;
+    private String drawingId;
+
+    private DatabaseReference sizePathListReference;
+    private DatabaseReference colorPathListReference;
+    private DatabaseReference pathsListReference;
+    private DatabaseReference listeCollaborateursReference;
 
     private float startX, startY, endX, endY;
     private float centerX, centerY;
@@ -66,6 +85,17 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
 
         this.backgroundColor = ContextCompat.getColor(DrawingView.this.getContext(), R.color.white); // Par défaut, la couleur de fond est blanche
         this.toolColor = Color.BLACK; // Par défaut, l'outil dessine en noir
+
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        this.firebaseRealtimeDatabase = FirebaseDatabase.getInstance("https://projet-mobile-33dd0-default-rtdb.europe-west1.firebasedatabase.app/");
+
+        this.drawingsReference = firebaseRealtimeDatabase.getReference("drawings");
+        this.drawingId = drawingsReference.push().getKey();
+
+        this.sizePathListReference = this.drawingsReference.child(drawingId).child("sizePathList");
+        this.colorPathListReference = this.drawingsReference.child(drawingId).child("colorPathList");
+        this.pathsListReference = this.drawingsReference.child(drawingId).child("pathsList");
+        this.listeCollaborateursReference = this.drawingsReference.child(drawingId).child("listeCollaborateurs");
     }
 
     @Override
@@ -98,6 +128,8 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent){
+        boolean needUpdate = false;
+
         if (this.toolType == 0) { // Dessine une courbe
             float x_pos = motionEvent.getX();
             float y_pos = motionEvent.getY();
@@ -111,6 +143,7 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
                     this.colorPath.add(this.toolColor); // Pareil pour la couleur
                     this.stylePath.add(this.lineStyle); // Pareil pour le style
                     this.path.reset(); // Efface la ligne de l'objet this.path que l'on vient d'ajouter
+                    needUpdate = true;
                     break;
                 case MotionEvent.ACTION_MOVE:
                     this.path.lineTo(x_pos, y_pos);
@@ -137,6 +170,7 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
                     this.colorPath.add(this.toolColor); // Pareil pour la couleur
                     this.stylePath.add(this.lineStyle); // Pareil pour le style
                     this.path.reset(); // Efface la ligne de l'objet this.path que l'on vient d'ajouter
+                    needUpdate = true;
                     break;
             }
         }else if (this.toolType == 2){ // Dessine un cercle
@@ -161,6 +195,7 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
                     this.colorPath.add(this.toolColor); // Pareil pour la couleur
                     this.stylePath.add(this.lineStyle); // Pareil pour le style
                     this.path.reset(); // Efface le cercle de l'objet this.path que l'on vient d'ajouter
+                    needUpdate = true;
                     break;
             }
         }else if (this.toolType == 3){ // Dessine un rectangle
@@ -190,8 +225,18 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
                     this.colorPath.add(this.toolColor); // Pareil pour la couleur
                     this.stylePath.add(this.lineStyle); // Pareil pour le style
                     this.path.reset(); // Efface le cercle de l'objet this.path que l'on vient d'ajouter
+                    needUpdate = true;
                     break;
             }
+        }
+
+        if (needUpdate){ // Si nécéssaire, on met à jour la base de donnée
+            this.sizePathListReference.setValue(this.sizePath).addOnSuccessListener(aVoid -> Log.d("TAG", "ArrayList successfully written!"))
+                    .addOnFailureListener(e -> Log.w("TAG", "Error writing ArrayList", e));
+            this.colorPathListReference.setValue(this.colorPath).addOnSuccessListener(aVoid -> Log.d("TAG", "ArrayList successfully written!"))
+                    .addOnFailureListener(e -> Log.w("TAG", "Error writing ArrayList", e));
+            this.pathsListReference.setValue(this.paths).addOnSuccessListener(aVoid -> Log.d("TAG", "ArrayList successfully written!"))
+                    .addOnFailureListener(e -> Log.w("TAG", "Error writing ArrayList", e));
         }
 
         invalidate(); // Redessine la vue
@@ -289,6 +334,14 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
             colorPath.remove(last_index);
             stylePath.remove(last_index);
             invalidate(); // Redessine pour prendre en compte l'annulation
+
+            // Ne pas oublier de mettre à jour la base de donnée quand on annule une action
+            this.sizePathListReference.setValue(this.sizePath).addOnSuccessListener(aVoid -> Log.d("TAG", "ArrayList successfully written!"))
+                    .addOnFailureListener(e -> Log.w("TAG", "Error writing ArrayList", e));
+            this.colorPathListReference.setValue(this.colorPath).addOnSuccessListener(aVoid -> Log.d("TAG", "ArrayList successfully written!"))
+                    .addOnFailureListener(e -> Log.w("TAG", "Error writing ArrayList", e));
+            this.pathsListReference.setValue(this.paths).addOnSuccessListener(aVoid -> Log.d("TAG", "ArrayList successfully written!"))
+                    .addOnFailureListener(e -> Log.w("TAG", "Error writing ArrayList", e));
         }
     }
 }
