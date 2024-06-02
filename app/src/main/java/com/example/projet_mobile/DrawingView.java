@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PathMeasure;
 import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -18,7 +19,6 @@ import androidx.core.content.ContextCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -29,20 +29,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Array;
 import java.util.ArrayList;
+import java.util.List;
 
-public class DrawingView extends View { // Comme cette classe hérite de View, on pourra l'utiliser comme vue sur l'activité EditDessin
+public class DrawingView extends View {
     private Paint paint;
     private Path path;
     private ArrayList<Path> paths;
-    private ArrayList<Integer> sizePath; // Apparemment si on veut des lignes de taille différente on a pas le choix, on est obligé de conserver leurs tailles au moment où elles sont dessinées
-    private ArrayList<Integer> colorPath; // Pareil pour avoir des lignes de couleur différente
-
-    private ArrayList<Integer> stylePath; // Pareil pour avoir des styles différents
-
-    private ArrayList<String> listeCollaborateurs; // Liste des collaborateurs (designés par leur adresse mail) sur le dessin.Le premier élément est l'utilisateur qui a créé le dessin
-    // On fera en sorte que n'importe quel collaborateur pourra ajouter un nouveau collaborateur, donc tout partira de l'utilisateur ayant créé le dessin
+    private ArrayList<Integer> sizePath;
+    private ArrayList<Integer> colorPath;
+    private ArrayList<Integer> stylePath;
+    private ArrayList<String> listeCollaborateurs;
 
     private FirebaseDatabase firebaseRealtimeDatabase;
     private DatabaseReference drawingsReference;
@@ -59,15 +56,15 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
     private float centerX, centerY;
     private float radius;
     private int lineWidth;
-    private int backgroundColor; // Couleur de fond du dessin
-    private int toolColor; // Couleur de l'outil avec lequel on va dessiner
+    private int backgroundColor;
+    private int toolColor;
+    private int toolType;
+    private int lineStyle;
 
-    private int toolType; // 0 pour ligne courbe, 1 pour ligne droite, il faudra en rajouter d'autre
-    private int lineStyle; // 0 pour STROKE (juste le contour), 1 pour FILL_AND_STROKE (contour et remplissage)
-    private static final int PERMISSION_REQUEST_CODE = 100;
-    public DrawingView(Context context){
-        this(context,null);
+    public DrawingView(Context context) {
+        this(context, null);
     }
+
     public DrawingView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
 
@@ -78,9 +75,9 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
         this.toolType = 0;
         this.lineStyle = 0;
         this.paint = new Paint();
-        this.paint.setStyle(Paint.Style.STROKE); // Style par défaut
-        paint.setStrokeCap(Paint.Cap.ROUND); // Définit le style de terminaison (il y en a d'autre possible, voir si on ne ferait pas en sorte de pouvoir les modifier)
-        paint.setStrokeJoin(Paint.Join.ROUND); // Définit le style de jonction (il y en a d'autre possible, voir si on ne ferait pas en sorte de pouvoir les modifier)
+        this.paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeJoin(Paint.Join.ROUND);
         this.paint.setStrokeWidth(this.lineWidth);
         this.paint.setAntiAlias(true);
 
@@ -91,8 +88,8 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
         this.stylePath = new ArrayList<>();
         this.listeCollaborateurs = new ArrayList<>();
 
-        this.backgroundColor = ContextCompat.getColor(DrawingView.this.getContext(), R.color.white); // Par défaut, la couleur de fond est blanche
-        this.toolColor = Color.BLACK; // Par défaut, l'outil dessine en noir
+        this.backgroundColor = ContextCompat.getColor(DrawingView.this.getContext(), R.color.white);
+        this.toolColor = Color.BLACK;
 
         this.drawingsReference = firebaseRealtimeDatabase.getReference("drawings");
         this.drawingId = drawingsReference.push().getKey();
@@ -106,40 +103,13 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
 
         boolean isCreated = true;
 
-        // Voir ce que j'ai fait dans AjoutCollaborateurs (au moment où on clique sur le bouton de validation d'ajout de collaborateur)
-        /* Pour l'instant ce bout de code ne marche pas pour récupérer les données de Firebase. Il faut plutôt faire comme dans AjoutCollaborateurs (si on a le temps)
-        DataSnapshot ds_collaborateurs = this.listeCollaborateursReference.get().getResult();
-        for (DataSnapshot snapshot_collaborateur : ds_collaborateurs.getChildren()){
-            isCreated = false;
-            // Si on est ici c'est que le dessin a déjà été créé, donc on récupère l'état actuel du dessin depuis la base de donnée
-            DataSnapshot ds_sizePath = this.sizePathListReference.get().getResult();
-            DataSnapshot ds_colorPath = this.colorPathListReference.get().getResult();
-            DataSnapshot ds_path = this.pathsListReference.get().getResult();
-            for (DataSnapshot snapshot_sizePath : ds_sizePath.getChildren()){
-                int sizeP = snasetPerspshot_sizePath.getValue(Integer.class);
-                this.sizePath.add(sizeP);
-            }
-            for (DataSnapshot snapshot_colorPath : ds_colorPath.getChildren()){
-                int colorP = snapshot_colorPath.getValue(Integer.class);
-                this.colorPath.add(colorP);
-            }
-            for (DataSnapshot snapshot_path : ds_path.getChildren()) {
-                Path p = snapshot_path.getValue(Path.class);
-                this.paths.add(p);
-            }
-            invalidate();
-            break; // On peut s'arrêter là, on avait juste besoin de savoir si le dessin existait déjà ou non
-        }
-         */
-
-        if (isCreated){ // Le dessin vient d'être créé, donc on ajoute l'utilisateur courant (qui vient donc de créer le dessin) das la liste des collaborateurs
+        if (isCreated) {
             FirebaseUser user = mAuth.getCurrentUser();
             this.listeCollaborateurs.add(user.getEmail());
 
             this.listeCollaborateursReference.setValue(this.listeCollaborateurs).addOnSuccessListener(aVoid -> Log.d("TAG", "ArrayList successfully written!"))
                     .addOnFailureListener(e -> Log.w("TAG", "Error writing ArrayList", e));
         }
-
     }
 
     @Override
@@ -147,148 +117,92 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
         super.onDraw(canvas);
 
         canvas.drawColor(this.backgroundColor);
-        // On dessine toutes les lignes précédentes
-        for (int i = 0 ; i < this.paths.size() ; i++){
+        for (int i = 0; i < this.paths.size(); i++) {
             this.paint.setStrokeWidth(this.sizePath.get(i));
             this.paint.setColor(this.colorPath.get(i));
-            if (this.stylePath.get(i) == 0){
+            if (this.stylePath.get(i) == 0) {
                 this.paint.setStyle(Paint.Style.STROKE);
-            }else {
+            } else {
                 this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
             }
             canvas.drawPath(this.paths.get(i), this.paint);
         }
-        // Puis on dessine la nouvelle ligne (avec la taille actuelle)
         this.paint.setStrokeWidth(this.lineWidth);
         this.paint.setColor(this.toolColor);
-        if (this.lineStyle == 0){
+        if (this.lineStyle == 0) {
             this.paint.setStyle(Paint.Style.STROKE);
-        }else{
+        } else {
             this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
         }
-        canvas.drawPath(this.path,this.paint);
+        canvas.drawPath(this.path, this.paint);
     }
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
-    public boolean onTouchEvent(MotionEvent motionEvent){
+    public boolean onTouchEvent(MotionEvent motionEvent) {
         boolean needUpdate = false;
 
-        if (this.toolType == 0) { // Dessine une courbe
-            float x_pos = motionEvent.getX();
-            float y_pos = motionEvent.getY();
-            switch (motionEvent.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    this.path.moveTo(x_pos, y_pos);
-                    break;
-                case MotionEvent.ACTION_UP: // L'utilisateur a fini de tracer, donc on ajoute la ligne à la liste de Path
-                    this.paths.add(new Path(this.path));
-                    this.sizePath.add(this.lineWidth); // On conserve la taille de la ligne au moment où elle est dessinée
-                    this.colorPath.add(this.toolColor); // Pareil pour la couleur
-                    this.stylePath.add(this.lineStyle); // Pareil pour le style
-                    this.path.reset(); // Efface la ligne de l'objet this.path que l'on vient d'ajouter
-                    needUpdate = true;
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    this.path.lineTo(x_pos, y_pos);
-                    break;
-            }
-        }else if (this.toolType == 1){ // Dessine une ligne droite
-            float x_pos = motionEvent.getX();
-            float y_pos = motionEvent.getY();
-            switch (motionEvent.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    path.moveTo(x_pos, y_pos);
-                    startX = x_pos;
-                    startY = y_pos;
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    path.reset();
-                    path.moveTo(startX, startY);
-                    path.lineTo(x_pos, y_pos);
-                    invalidate();
-                    break;
-                case MotionEvent.ACTION_UP:
-                    this.paths.add(new Path(this.path));
-                    this.sizePath.add(this.lineWidth); // On conserve la taille de la ligne au moment où elle est dessinée
-                    this.colorPath.add(this.toolColor); // Pareil pour la couleur
-                    this.stylePath.add(this.lineStyle); // Pareil pour le style
-                    this.path.reset(); // Efface la ligne de l'objet this.path que l'on vient d'ajouter
-                    needUpdate = true;
-                    break;
-            }
-        }else if (this.toolType == 2){ // Dessine un cercle
-            float x_pos = motionEvent.getX();
-            float y_pos = motionEvent.getY();
-            switch (motionEvent.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    centerX = motionEvent.getX();
-                    centerY = motionEvent.getY();
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    path.reset();
-                    float dx = motionEvent.getX() - centerX;
-                    float dy = motionEvent.getY() - centerY;
-                    radius = (float) Math.sqrt(dx * dx + dy * dy);
-                    path.addCircle(centerX, centerY, radius, Path.Direction.CW);
-                    invalidate();
-                    break;
-                case MotionEvent.ACTION_UP:
-                    this.paths.add(new Path(this.path));
-                    this.sizePath.add(this.lineWidth); // On conserve la taille de la ligne au moment où elle est dessinée
-                    this.colorPath.add(this.toolColor); // Pareil pour la couleur
-                    this.stylePath.add(this.lineStyle); // Pareil pour le style
-                    this.path.reset(); // Efface le cercle de l'objet this.path que l'on vient d'ajouter
-                    needUpdate = true;
-                    break;
-            }
-        }else if (this.toolType == 3){ // Dessine un rectangle
-            float x_pos = motionEvent.getX();
-            float y_pos = motionEvent.getY();
-            switch (motionEvent.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    startX = motionEvent.getX();
-                    startY = motionEvent.getY();
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    path.reset();
-                    endX = motionEvent.getX();
-                    endY = motionEvent.getY();
+        float x_pos = motionEvent.getX();
+        float y_pos = motionEvent.getY();
+        switch (motionEvent.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                this.path.moveTo(x_pos, y_pos);
+                break;
+            case MotionEvent.ACTION_UP:
+                this.paths.add(new Path(this.path));
+                this.sizePath.add(this.lineWidth);
+                this.colorPath.add(this.toolColor);
+                this.stylePath.add(this.lineStyle);
 
-                    float left = Math.min(startX, endX);
-                    float right = Math.max(startX, endX);
-                    float top = Math.min(startY, endY);
-                    float bottom = Math.max(startY, endY);
-                    path.addRect(left, top, right, bottom, Path.Direction.CW);
+                // Convertir le Path en liste de points et sauvegarder dans Firebase
+                List<Point> points = convertPathToPoints(this.path);
+                pathsListReference.push().setValue(points);
 
-                    invalidate();
-                    break;
-                case MotionEvent.ACTION_UP:
-                    this.paths.add(new Path(this.path));
-                    this.sizePath.add(this.lineWidth); // On conserve la taille de la ligne au moment où elle est dessinée
-                    this.colorPath.add(this.toolColor); // Pareil pour la couleur
-                    this.stylePath.add(this.lineStyle); // Pareil pour le style
-                    this.path.reset(); // Efface le cercle de l'objet this.path que l'on vient d'ajouter
-                    needUpdate = true;
-                    break;
-            }
+                this.path.reset();
+                needUpdate = true;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                this.path.lineTo(x_pos, y_pos);
+                break;
         }
 
-        if (needUpdate){ // Si nécéssaire, on met à jour la base de donnée
+        if (needUpdate) {
             this.sizePathListReference.setValue(this.sizePath).addOnSuccessListener(aVoid -> Log.d("TAG", "ArrayList successfully written!"))
                     .addOnFailureListener(e -> Log.w("TAG", "Error writing ArrayList", e));
             this.colorPathListReference.setValue(this.colorPath).addOnSuccessListener(aVoid -> Log.d("TAG", "ArrayList successfully written!"))
                     .addOnFailureListener(e -> Log.w("TAG", "Error writing ArrayList", e));
-            this.pathsListReference.setValue(this.paths).addOnSuccessListener(aVoid -> Log.d("TAG", "ArrayList successfully written!"))
-                    .addOnFailureListener(e -> Log.w("TAG", "Error writing ArrayList", e));
         }
 
-        invalidate(); // Redessine la vue
+        invalidate();
         return true;
     }
 
-    public Bitmap getBitmapFromView(){ // Cette fonction sert à la sauvegarde en png du dessin
-        Bitmap bitmap = Bitmap.createBitmap(this.getWidth(),this.getHeight(), Bitmap.Config.ARGB_8888);
+    private List<Point> convertPathToPoints(Path path) {
+        List<Point> points = new ArrayList<>();
+        PathMeasure pathMeasure = new PathMeasure(path, false);
+        float[] coordinates = new float[2];
+        float distance = 0f;
+        while (distance < pathMeasure.getLength()) {
+            pathMeasure.getPosTan(distance, coordinates, null);
+            points.add(new Point(coordinates[0], coordinates[1]));
+            distance += 1; // Adjust this step size as needed
+        }
+        return points;
+    }
+
+    private Path convertPointsToPath(List<Point> points) {
+        Path path = new Path();
+        if (points != null && points.size() > 0) {
+            path.moveTo(points.get(0).x, points.get(0).y);
+            for (int i = 1; i < points.size(); i++) {
+                path.lineTo(points.get(i).x, points.get(i).y);
+            }
+        }
+        return path;
+    }
+
+    public Bitmap getBitmapFromView() {
+        Bitmap bitmap = Bitmap.createBitmap(this.getWidth(), this.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         this.draw(canvas);
         return bitmap;
@@ -330,18 +244,19 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
         }
     }
 
-    public void setLineWidth(int progress){
+    public void setLineWidth(int progress) {
         this.lineWidth = progress;
     }
 
-    public int getLineWidth(){
+    public int getLineWidth() {
         return this.lineWidth;
     }
 
-    public int getBackgroundColor(){
+    public int getBackgroundColor() {
         return this.backgroundColor;
     }
-    public void setBackgroundColor(int backgroundColor){
+
+    public void setBackgroundColor(int backgroundColor) {
         this.backgroundColor = backgroundColor;
     }
 
@@ -349,10 +264,11 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
         this.toolType = toolType;
     }
 
-    public int getToolColor(){
+    public int getToolColor() {
         return this.toolColor;
     }
-    public void setToolColor(int toolColor){
+
+    public void setToolColor(int toolColor) {
         this.toolColor = toolColor;
     }
 
@@ -362,24 +278,22 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
 
     public void setLineStyle(int lineStyle) {
         this.lineStyle = lineStyle;
-        if (lineStyle == 0){
+        if (lineStyle == 0) {
             this.paint.setStyle(Paint.Style.STROKE);
-        }else if (lineStyle == 1){
+        } else if (lineStyle == 1) {
             this.paint.setStyle(Paint.Style.FILL_AND_STROKE);
         }
     }
 
-    public void undo() { // Annule la dernière modification faite sur le dessin (si elle existe)
+    public void undo() {
         if (paths.size() > 0) {
             int last_index = paths.size() - 1;
-            // Les 3 listes font normalement la même taille donc l'indice du dernier élément est le même
             paths.remove(last_index);
             sizePath.remove(last_index);
             colorPath.remove(last_index);
             stylePath.remove(last_index);
-            invalidate(); // Redessine pour prendre en compte l'annulation
+            invalidate();
 
-            // Ne pas oublier de mettre à jour la base de donnée quand on annule une action
             this.sizePathListReference.setValue(this.sizePath).addOnSuccessListener(aVoid -> Log.d("TAG", "ArrayList successfully written!"))
                     .addOnFailureListener(e -> Log.w("TAG", "Error writing ArrayList", e));
             this.colorPathListReference.setValue(this.colorPath).addOnSuccessListener(aVoid -> Log.d("TAG", "ArrayList successfully written!"))
@@ -389,7 +303,7 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
         }
     }
 
-    public String getDrawingId(){
+    public String getDrawingId() {
         return this.drawingId;
     }
 }
