@@ -23,12 +23,14 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 public class EditDessin extends AppCompatActivity {
 
     private DrawingView drawingView;
+    public static String drawingId;
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_dessin);
+        //drawingId = "none";
 
         drawingView = findViewById(R.id.drawingView);
         
@@ -44,6 +46,7 @@ public class EditDessin extends AppCompatActivity {
             @Override
             public void onClick(View view) {
             	Intent i = new Intent(EditDessin.this, AjoutCollaborateurs.class);
+                i.putExtra("drawingId", drawingView.getDrawingId());
                 startActivity(i);
             }
         });
@@ -53,7 +56,6 @@ public class EditDessin extends AppCompatActivity {
             public void onClick(View view) {
                 Bitmap bitmap = drawingView.getBitmapFromView();
                 if (bitmap != null) {
-                    System.out.println("Caca qui pue");
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                     byte[] byteArray = stream.toByteArray();

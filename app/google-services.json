@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "577476207659",
+    "firebase_url": "https://projet-mobile-33dd0-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "projet-mobile-33dd0",
+    "storage_bucket": "projet-mobile-33dd0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:577476207659:android:4abaa38769dd85e251b66e",
+        "android_client_info": {
+          "package_name": "com.example.projet_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwPNWHsosDI9LxIzPeH5TymWs-VAaLJe4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

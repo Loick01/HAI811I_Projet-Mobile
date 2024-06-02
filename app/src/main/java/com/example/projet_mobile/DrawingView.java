@@ -16,6 +16,8 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -51,6 +53,8 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
     private DatabaseReference pathsListReference;
     private DatabaseReference listeCollaborateursReference;
 
+    private FirebaseAuth mAuth;
+
     private float startX, startY, endX, endY;
     private float centerX, centerY;
     private float radius;
@@ -67,6 +71,9 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
     public DrawingView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
 
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        this.firebaseRealtimeDatabase = FirebaseDatabase.getInstance("https://projet-mobile-33dd0-default-rtdb.europe-west1.firebasedatabase.app/");
+
         this.lineWidth = 10;
         this.toolType = 0;
         this.lineStyle = 0;
@@ -82,12 +89,10 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
         this.sizePath = new ArrayList<>();
         this.colorPath = new ArrayList<>();
         this.stylePath = new ArrayList<>();
+        this.listeCollaborateurs = new ArrayList<>();
 
         this.backgroundColor = ContextCompat.getColor(DrawingView.this.getContext(), R.color.white); // Par défaut, la couleur de fond est blanche
         this.toolColor = Color.BLACK; // Par défaut, l'outil dessine en noir
-
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-        this.firebaseRealtimeDatabase = FirebaseDatabase.getInstance("https://projet-mobile-33dd0-default-rtdb.europe-west1.firebasedatabase.app/");
 
         this.drawingsReference = firebaseRealtimeDatabase.getReference("drawings");
         this.drawingId = drawingsReference.push().getKey();
@@ -96,6 +101,45 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
         this.colorPathListReference = this.drawingsReference.child(drawingId).child("colorPathList");
         this.pathsListReference = this.drawingsReference.child(drawingId).child("pathsList");
         this.listeCollaborateursReference = this.drawingsReference.child(drawingId).child("listeCollaborateurs");
+
+        mAuth = FirebaseAuth.getInstance();
+
+        boolean isCreated = true;
+
+        // Voir ce que j'ai fait dans AjoutCollaborateurs (au moment où on clique sur le bouton de validation d'ajout de collaborateur)
+        /* Pour l'instant ce bout de code ne marche pas pour récupérer les données de Firebase. Il faut plutôt faire comme dans AjoutCollaborateurs (si on a le temps)
+        DataSnapshot ds_collaborateurs = this.listeCollaborateursReference.get().getResult();
+        for (DataSnapshot snapshot_collaborateur : ds_collaborateurs.getChildren()){
+            isCreated = false;
+            // Si on est ici c'est que le dessin a déjà été créé, donc on récupère l'état actuel du dessin depuis la base de donnée
+            DataSnapshot ds_sizePath = this.sizePathListReference.get().getResult();
+            DataSnapshot ds_colorPath = this.colorPathListReference.get().getResult();
+            DataSnapshot ds_path = this.pathsListReference.get().getResult();
+            for (DataSnapshot snapshot_sizePath : ds_sizePath.getChildren()){
+                int sizeP = snasetPerspshot_sizePath.getValue(Integer.class);
+                this.sizePath.add(sizeP);
+            }
+            for (DataSnapshot snapshot_colorPath : ds_colorPath.getChildren()){
+                int colorP = snapshot_colorPath.getValue(Integer.class);
+                this.colorPath.add(colorP);
+            }
+            for (DataSnapshot snapshot_path : ds_path.getChildren()) {
+                Path p = snapshot_path.getValue(Path.class);
+                this.paths.add(p);
+            }
+            invalidate();
+            break; // On peut s'arrêter là, on avait juste besoin de savoir si le dessin existait déjà ou non
+        }
+         */
+
+        if (isCreated){ // Le dessin vient d'être créé, donc on ajoute l'utilisateur courant (qui vient donc de créer le dessin) das la liste des collaborateurs
+            FirebaseUser user = mAuth.getCurrentUser();
+            this.listeCollaborateurs.add(user.getEmail());
+
+            this.listeCollaborateursReference.setValue(this.listeCollaborateurs).addOnSuccessListener(aVoid -> Log.d("TAG", "ArrayList successfully written!"))
+                    .addOnFailureListener(e -> Log.w("TAG", "Error writing ArrayList", e));
+        }
+
     }
 
     @Override
@@ -343,5 +387,9 @@ public class DrawingView extends View { // Comme cette classe hérite de View, o
             this.pathsListReference.setValue(this.paths).addOnSuccessListener(aVoid -> Log.d("TAG", "ArrayList successfully written!"))
                     .addOnFailureListener(e -> Log.w("TAG", "Error writing ArrayList", e));
         }
+    }
+
+    public String getDrawingId(){
+        return this.drawingId;
     }
 }
